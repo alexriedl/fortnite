@@ -17,16 +17,8 @@ export WINEPREFIX="$prefix"
 export WINE="$wine"
 
 print_step() { printf "%s %s\n\n" "---->" "$1"; }
-
-sub_winecfg() {
-  print_step "Running winecfg"
-  $winecfg
-}
-
-sub_install() {
-  print_step "Installing Launcher"
-  $wine msiexec /i "$installer_msi" /q
-}
+sub_winecfg() { print_step "Running winecfg"; $winecfg; }
+sub_install() { print_step "Installing Launcher"; $wine msiexec /i "$installer_msi" /q; }
 
 sub_dependencies() {
   if [ ! -f winetricks ]; then
@@ -36,7 +28,7 @@ sub_dependencies() {
   fi
 
   print_step "Installing Dependencies"
-  ./winetricks corefonts d3dcompiler_43 d3dx10 d3dx10_43 d3dx11_42 d3dx11_43 d3dx9 d3dx9_43 directx9 dotnet40 vcrun2008 vcrun2010 vcrun2012 vcrun2013 vcrun2015 xact xinput 
+  ./winetricks -q corefonts d3dcompiler_43 d3dx10 d3dx10_43 d3dx11_42 d3dx11_43 d3dx9 d3dx9_43 directx9 dotnet40 vcrun2008 vcrun2010 vcrun2012 vcrun2013 vcrun2015 xact xinput 
 
   # wget http://se.archive.ubuntu.com/ubuntu/pool/main/libp/libpng/libpng12-0_1.2.54-1ubuntu1_i386.deb
   # dpkg -i libpng12-0_1.2.54-1ubuntu1_i386.deb
