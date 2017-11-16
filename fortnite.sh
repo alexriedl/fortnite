@@ -17,6 +17,8 @@ export WINEPREFIX="$prefix"
 export WINE="$wine"
 
 print_step() { printf "%s %s\n\n" "---->" "$1"; }
+print_info() { printf "      %s\n" "$1"; }
+print_error() { printf "ERROR: %s\n" "$1"; }
 sub_winecfg() { print_step "Running winecfg"; $winecfg; }
 sub_install() { print_step "Installing Launcher"; $wine msiexec /i "$installer_msi" /q; }
 
