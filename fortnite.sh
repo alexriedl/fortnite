@@ -1,10 +1,10 @@
 #!/bin/bash
 
-script_name=$(basename $0)
+SCRIPT_NAME=$(basename "${0}")
 
 # wine_bin="/home/alex/.PlayOnLinux/wine/linux-amd64/2.13-staging/bin"
 # wine_bin="/home/alex/.PlayOnLinux/wine/linux-amd64/2.19-staging/bin"
-wine_bin="/home/alex/.PlayOnLinux/wine/linux-amd64/2.20/bin"
+wine_bin="/home/alex/.PlayOnLinux/wine/linux-amd64/2.21/bin"
 installer_msi="/home/alex/Downloads/EpicInstaller-6.6.0.msi"
 directx="/home/alex/Downloads/directx_Jun2010_redist.exe"
 prefix="/home/alex/.PlayOnLinux/wineprefix/Fortnite"
@@ -24,11 +24,11 @@ sub_dependencies() {
   if [ ! -f winetricks ]; then
     print_step "Downloading latest winetricks"
     wget  https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks
-    chmod +x winetricks 
+    chmod +x winetricks
   fi
 
   print_step "Installing Dependencies"
-  ./winetricks -q corefonts d3dcompiler_43 d3dx10 d3dx10_43 d3dx11_42 d3dx11_43 d3dx9 d3dx9_43 directx9 dotnet40 vcrun2008 vcrun2010 vcrun2012 vcrun2013 vcrun2015 xact xinput 
+  ./winetricks -q corefonts d3dcompiler_43 d3dx10 d3dx10_43 d3dx11_42 d3dx11_43 d3dx9 d3dx9_43 directx9 dotnet40 vcrun2008 vcrun2010 vcrun2012 vcrun2013 vcrun2015 xact xinput
 
   # wget http://se.archive.ubuntu.com/ubuntu/pool/main/libp/libpng/libpng12-0_1.2.54-1ubuntu1_i386.deb
   # dpkg -i libpng12-0_1.2.54-1ubuntu1_i386.deb
@@ -42,8 +42,8 @@ sub_dependencies() {
 
 sub_launcher() {
   print_step "Running Launcher"
-  $wine "$prefix/drive_c/Program Files (x86)/Epic Games/Launcher/Portal/Binaries/Win32/EpicGamesLauncher.exe" -OpenGL
-#$wine "$prefix/drive_c/Program Files (x86)/Epic Games/Launcher/Portal/Binaries/Win32/EpicGamesLauncher.exe" -SkipBuildPatchPrereq -OpenGL 
+  # $wine "$prefix/drive_c/Program Files (x86)/Epic Games/Launcher/Portal/Binaries/Win32/EpicGamesLauncher.exe" -OpenGL
+  $wine "$prefix/drive_c/Program Files (x86)/Epic Games/Launcher/Portal/Binaries/Win32/EpicGamesLauncher.exe" -SkipBuildPatchPrereq -OpenGL
 }
 
 sub_purge() {
@@ -54,7 +54,7 @@ sub_purge() {
 
 sub_fresh_install() {
   local purge=false
-  if purge; then
+  if $purge; then
     sub_purge
   fi
 
@@ -72,7 +72,7 @@ sub_fortnite() {
 sub_help() {
     printf "
 Usage:
-  ./$script_name <subcommand> [options]
+  ./%s <subcommand> [options]
 
   Subcommands:
     winecfg
@@ -83,7 +83,7 @@ Usage:
     fortnite
 
   For help with each subcommand run:
-  ./$script_name <subcommand> -h|--help\n\n"
+  ./%s <subcommand> -h|--help\n\n" "${SCRIPT_NAME}" "${SCRIPT_NAME}"
 }
 
 subcommand=$1
@@ -95,16 +95,17 @@ case $subcommand in
     # Drop the argument that is the name of the subcommand
     shift
 
+    full_subcommand="sub_$subcommand"
     if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
-      sub_${subcommand}_help
-    else
-      sub_$subcommand $@
+      full_subcommand="sub_${subcommand}_help"
     fi
 
-    # Report unknown subcommands
-    if [ $? = 127 ]; then
-      printf "Error: '$subcommand' is not a known subcommand.\n" >&2
-      printf "  Run './$script_name --help' for a list of known subcommands.\n" >&2
+    if type "${full_subcommand}" > /dev/null 2>&1; then
+      "${full_subcommand}" "$@"
+    else
+      # Report unknown subcommands
+      print_error "'$subcommand' is not a known subcommand."
+      print_info "Run './$SCRIPT_NAME --help' for a list of known subcommands."
       exit 1
     fi
     ;;
